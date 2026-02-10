@@ -23,8 +23,8 @@ public class CameraController : MonoBehaviour
 
         cam = transform.GetComponent<Camera>();
 
-        horizontalUpperBound = transform.position.x + cam.orthographicSize * aspectRatio;
-        Debug.Log("Horizontal Uppser bound: " + transform.GetComponent<Camera>().orthographicSize);
+        horizontalUpperBound = transform.position.x + cam.orthographicSize * cam.aspect;
+        Debug.Log("Horizontal Uppser bound: " + horizontalUpperBound);
     }
 
     // Update is called once per frame
@@ -35,7 +35,7 @@ public class CameraController : MonoBehaviour
 
     private void CameraPosition()
     {
-        float playerPosition = playerPos.GetComponent<Renderer>().bounds.max.x;
+        float playerPosition = playerPos.transform.position.x;
         //transform.position = new Vector3(playerPosition.x, transform.position.y, transform.position.z) + offset;
         //float horizontalUpperBound =
         if (playerPosition >= horizontalUpperBound)

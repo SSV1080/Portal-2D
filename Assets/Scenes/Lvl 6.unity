@@ -1282,7 +1282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2746126392556175225, guid: bea9c187f3e9e8c47aadc1d344fb65f8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -20.1
+      value: -19.22
       objectReference: {fileID: 0}
     - target: {fileID: 2746126392556175225, guid: bea9c187f3e9e8c47aadc1d344fb65f8, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1290,7 +1290,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2746126392556175225, guid: bea9c187f3e9e8c47aadc1d344fb65f8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.0165
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 2746126392556175225, guid: bea9c187f3e9e8c47aadc1d344fb65f8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1368,7 +1368,8 @@ PrefabInstance:
       propertyPath: orangeDebug
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 399347460439892488, guid: bea9c187f3e9e8c47aadc1d344fb65f8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -2167,7 +2168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPos: {fileID: 955758922}
-  startingOffset: {x: -6, y: 1, z: -10}
+  startingOffset: {x: -6, y: 1, z: -1}
   initalXPos: 0
   translationOffset: 0
 --- !u!1 &755616861
