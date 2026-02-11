@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D playerrb;
+    private bool isPlayerActive = true;
     [SerializeField] private float playerVelocity;
     [SerializeField] private bool isGrounded;
     private Vector2 initPos;
@@ -28,17 +29,21 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!levelCompleted)
+        if (!levelCompleted && isPlayerActive)
         {
             GravityCheck();
             Jump();
         }
     }
-    private void FixedUpdate()
+    void FixedUpdate()
     {
-        if (!levelCompleted)
+        if (!levelCompleted && isPlayerActive)
         {
             MoveFwd();
+        }
+        else
+        {
+            playerrb.velocity = Vector2.zero;
         }
     }
     private void ComponentReferences()
@@ -74,7 +79,7 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = false;
         }
-        else if(playerrb.velocity.y == 0 || gameObject.transform.parent != null)
+        else if (playerrb.velocity.y == 0 || gameObject.transform.parent != null)
         {
             isGrounded = true;
         }
@@ -97,7 +102,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //Determines that the level has been completed once the player reaches the victory area
-        if(collision.tag == "victory")
+        if (collision.tag == "victory")
         {
             levelCompleted = true;
         }
@@ -105,7 +110,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnTriggerExit2D(Collider2D collision)
     {
-        
+
     }
 
     /// <summary>
@@ -116,7 +121,7 @@ public class PlayerController : MonoBehaviour
     public IEnumerator JumpPortal(string exitPortal)
     {
         GameObject outPortal = GameObject.FindGameObjectWithTag(exitPortal);
-        if(outPortal != null)
+        if (outPortal != null)
         {
             outPortal.GetComponent<BoxCollider2D>().enabled = false;
             if (outPortal != null)
@@ -128,5 +133,19 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(0.4f);
             outPortal.GetComponent<BoxCollider2D>().enabled = true;
         }
+    }
+
+    public void OnEnable()
+    {
+        GameEvents.current.onCameraShiftStarted += TurnPlayerActive;
+    }
+    public void OnDisable()
+    {
+        GameEvents.current.onCameraShiftStarted -= TurnPlayerActive;
+
+    }
+    void TurnPlayerActive()
+    {
+        isPlayerActive = false;
     }
 }

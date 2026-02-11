@@ -2,19 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using DG.Tweening;
 
 /// <summary>
 /// An optional script for a different play style; follows the player in case the level's length is beyond the x coordinate of the camera's size
 /// </summary>
 public class CameraController : MonoBehaviour
 {
+    private Camera cam;
     [SerializeField] private Transform playerPos;
     [SerializeField] private Vector3 startingOffset;
-    [SerializeField] float initalXPos;
-    [SerializeField] private float translationOffset;
+
     private float horizontalUpperBound;
-    private Camera cam;
-    private readonly float aspectRatio = 16 / 9;
+
+    public bool isCameraBoundReached { get; private set; }
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +27,6 @@ public class CameraController : MonoBehaviour
         cam = transform.GetComponent<Camera>();
 
         horizontalUpperBound = transform.position.x + cam.orthographicSize * cam.aspect;
-        Debug.Log("Horizontal Uppser bound: " + horizontalUpperBound);
     }
 
     // Update is called once per frame
@@ -38,11 +40,27 @@ public class CameraController : MonoBehaviour
         float playerPosition = playerPos.transform.position.x;
         //transform.position = new Vector3(playerPosition.x, transform.position.y, transform.position.z) + offset;
         //float horizontalUpperBound =
-        if (playerPosition >= horizontalUpperBound)
+        if (playerPosition >= horizontalUpperBound && !isCameraBoundReached)
         {
-            Debug.Log("Playerreached end of camera range");
-            //transform.position = new Vector3(transform.position.x + translationOffset, transform.position.y, transform.position.z);
+            isCameraBoundReached = true;
+            UpdateCameraBounds();
+            Debug.Log("Run condition");
         }
+    }
+
+    public void UpdateCameraBounds()
+    {
+        StartCoroutine(UpdateCameraBoundsRoutine());
+    }
+
+    public IEnumerator UpdateCameraBoundsRoutine()
+    {
+        yield return new WaitForSeconds(.4f);
+        transform.DOMoveX(2 * horizontalUpperBound, 1);
+        horizontalUpperBound += cam.orthographicSize * cam.aspect;
+        yield return new WaitForSeconds(.4f);
+        isCameraBoundReached = false;
+        yield return null;
     }
 
     void OnDrawGizmos()
