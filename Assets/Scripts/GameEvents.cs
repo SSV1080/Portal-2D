@@ -37,7 +37,11 @@ public class GameEvents : MonoBehaviour
 
         if (cameraController.isCameraBoundReached)
         {
-            onCameraShiftStarted.Invoke();
+            onCameraShiftStarted?.Invoke();
+        }
+        if (!cameraController.isCameraBoundReached)
+        {
+            onCameraShiftFinished?.Invoke();
         }
     }
 

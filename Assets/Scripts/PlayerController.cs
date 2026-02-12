@@ -137,15 +137,21 @@ public class PlayerController : MonoBehaviour
 
     public void OnEnable()
     {
-        GameEvents.current.onCameraShiftStarted += TurnPlayerActive;
+        GameEvents.current.onCameraShiftStarted += TurnPlayerInactive;
+        GameEvents.current.onCameraShiftFinished += TurnPlayerActive;
     }
     public void OnDisable()
     {
-        GameEvents.current.onCameraShiftStarted -= TurnPlayerActive;
+        GameEvents.current.onCameraShiftFinished -= TurnPlayerActive;
+        GameEvents.current.onCameraShiftStarted -= TurnPlayerInactive;
 
+    }
+    void TurnPlayerInactive()
+    {
+        isPlayerActive = false;
     }
     void TurnPlayerActive()
     {
-        isPlayerActive = false;
+        isPlayerActive = true;
     }
 }

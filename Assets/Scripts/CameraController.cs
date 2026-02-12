@@ -13,8 +13,11 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Transform playerPos;
     [SerializeField] private Vector3 startingOffset;
 
-    private float horizontalUpperBound;
+    [SerializeField] private float cameraMinBound;
+    [SerializeField] private float cameraMaxBound;
 
+    private float horizontalUpperBound;
+    private float halfWidth;
     public bool isCameraBoundReached { get; private set; }
 
 
@@ -26,7 +29,10 @@ public class CameraController : MonoBehaviour
 
         cam = transform.GetComponent<Camera>();
 
-        horizontalUpperBound = transform.position.x + cam.orthographicSize * cam.aspect;
+        halfWidth = cam.orthographicSize * cam.aspect;
+        horizontalUpperBound = transform.position.x + halfWidth;
+
+        Debug.Log("lowerBound " + (transform.position.x - halfWidth) + "upper bound " + (transform.position.x + halfWidth));
     }
 
     // Update is called once per frame
@@ -39,8 +45,9 @@ public class CameraController : MonoBehaviour
     {
         float playerPosition = playerPos.transform.position.x;
         //transform.position = new Vector3(playerPosition.x, transform.position.y, transform.position.z) + offset;
-        //float horizontalUpperBound =
-        if (playerPosition >= horizontalUpperBound && !isCameraBoundReached)
+
+        bool cameraWithinLevelRange = transform.position.x - halfWidth >= cameraMinBound && transform.position.x + halfWidth <= cameraMaxBound;
+        if (cameraWithinLevelRange && playerPosition >= horizontalUpperBound && !isCameraBoundReached)
         {
             isCameraBoundReached = true;
             UpdateCameraBounds();
@@ -56,10 +63,18 @@ public class CameraController : MonoBehaviour
     public IEnumerator UpdateCameraBoundsRoutine()
     {
         yield return new WaitForSeconds(.4f);
-        transform.DOMoveX(2 * horizontalUpperBound, 1);
-        horizontalUpperBound += cam.orthographicSize * cam.aspect;
+
+        //Debug.Log("Min Camera Bounds: " + minCameraX + "Max Camera Bounds: " + maxCameraX);
+
+        float targetPosition = transform.position.x + 2 * halfWidth;
+
+        targetPosition = Mathf.Clamp(targetPosition, cameraMinBound, cameraMaxBound);
+
+        transform.DOMoveX(targetPosition, 1);
+        horizontalUpperBound += 2 * halfWidth;
         yield return new WaitForSeconds(.4f);
         isCameraBoundReached = false;
+        Debug.Log(transform.position.x - cam.aspect * cam.orthographicSize);
         yield return null;
     }
 
