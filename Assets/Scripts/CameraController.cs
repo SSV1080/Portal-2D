@@ -19,6 +19,7 @@ public class CameraController : MonoBehaviour
     bool cameraWithinLevelRange;
 
     private float horizontalUpperBound;
+    private float horizontalLowerBound;
     private float halfWidth;
     public bool isCameraBoundReached { get; private set; }
 
@@ -33,6 +34,7 @@ public class CameraController : MonoBehaviour
 
         halfWidth = cam.orthographicSize * cam.aspect;
         horizontalUpperBound = transform.position.x + halfWidth;
+        horizontalLowerBound = transform.position.x - halfWidth;
 
         Debug.Log(cam.orthographicSize * cam.aspect);
 
@@ -50,17 +52,30 @@ public class CameraController : MonoBehaviour
         float playerPosition = playerPos.transform.position.x;
 
         cameraWithinLevelRange = transform.position.x >= cameraMinBound && transform.position.x <= cameraMaxBound;
-        if (cameraWithinLevelRange && playerPosition >= horizontalUpperBound && !isCameraBoundReached)
+        if (cameraWithinLevelRange /*&& playerPosition >= horizontalUpperBound*/ && !isCameraBoundReached)
         {
-            isCameraBoundReached = true;
-            UpdateCameraBounds();
-            Debug.Log("Run condition");
+            if (playerPosition >= horizontalUpperBound)
+            {
+                isCameraBoundReached = true;
+                UpdateCameraBounds();
+            }
+            else if (playerPosition < horizontalLowerBound)
+            {
+                isCameraBoundReached = true;
+                UpdateCameraBackBounds();
+            }
+
         }
     }
 
     public void UpdateCameraBounds()
     {
         StartCoroutine(PanCameraRightRoutine());
+    }
+
+    public void UpdateCameraBackBounds()
+    {
+        StartCoroutine(PanCameraLeftRoutine());
     }
 
     public IEnumerator PanCameraRightRoutine()
@@ -72,7 +87,30 @@ public class CameraController : MonoBehaviour
         targetPosition = Mathf.Clamp(targetPosition, cameraMinBound, cameraMaxBound);
 
         transform.DOMoveX(targetPosition, 1);
+
+        horizontalLowerBound = horizontalUpperBound;
         horizontalUpperBound += 2 * halfWidth;
+
+        yield return new WaitForSeconds(.4f);
+        isCameraBoundReached = false;
+        Debug.Log(transform.position.x - cam.aspect * cam.orthographicSize);
+        yield return null;
+    }
+
+    public IEnumerator PanCameraLeftRoutine()
+    {
+        yield return new WaitForSeconds(.4f);
+
+        float targetPosition = transform.position.x - 2 * halfWidth;
+
+        targetPosition = Mathf.Clamp(targetPosition, cameraMinBound, cameraMaxBound);
+
+        transform.DOMoveX(targetPosition, 1);
+
+        horizontalUpperBound = horizontalLowerBound;
+        horizontalLowerBound -= 2 * halfWidth;
+
+
         yield return new WaitForSeconds(.4f);
         isCameraBoundReached = false;
         Debug.Log(transform.position.x - cam.aspect * cam.orthographicSize);
