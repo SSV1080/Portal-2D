@@ -27,7 +27,6 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        playerPos = GameObject.Find("Player").transform;
         transform.position = startingOffset;
 
         cam = transform.GetComponent<Camera>();
@@ -35,10 +34,6 @@ public class CameraController : MonoBehaviour
         halfWidth = cam.orthographicSize * cam.aspect;
         horizontalUpperBound = transform.position.x + halfWidth;
         horizontalLowerBound = transform.position.x - halfWidth;
-
-        Debug.Log(cam.orthographicSize * cam.aspect);
-
-        Debug.Log("lowerBound " + (transform.position.x - halfWidth) + "upper bound " + (transform.position.x + halfWidth));
     }
 
     // Update is called once per frame
@@ -54,88 +49,41 @@ public class CameraController : MonoBehaviour
         cameraWithinLevelRange = transform.position.x >= cameraMinBound && transform.position.x <= cameraMaxBound;
         if (cameraWithinLevelRange /*&& playerPosition >= horizontalUpperBound*/ && !isCameraBoundReached)
         {
-            if (playerPosition >= horizontalUpperBound)
-            {
-                isCameraBoundReached = true;
-                UpdateCameraBounds();
-            }
-            else if (playerPosition < horizontalLowerBound)
-            {
-                isCameraBoundReached = true;
-                UpdateCameraBackBounds();
-            }
+            UpdateCameraBounds(playerPosition);
 
         }
     }
 
-    public void UpdateCameraBounds()
+    public void UpdateCameraBounds(float playerPosition)
     {
-        StartCoroutine(PanCameraRightRoutine());
+        int direction = playerPosition >= horizontalUpperBound ? 1 :
+                        playerPosition < horizontalLowerBound ? -1 : 0;
+
+        if (direction == 0) return;
+
+        isCameraBoundReached = true;
+        StartCoroutine(PanCameraRoutine(direction));
     }
 
-    public void UpdateCameraBackBounds()
-    {
-        StartCoroutine(PanCameraLeftRoutine());
-    }
-
-    public IEnumerator PanCameraRightRoutine()
+    public IEnumerator PanCameraRoutine(int direction) // 1 = right, -1 = left
     {
         yield return new WaitForSeconds(.4f);
 
-        float targetPosition = transform.position.x + 2 * halfWidth;
+        float shift = 2f * halfWidth * direction;
 
-        targetPosition = Mathf.Clamp(targetPosition, cameraMinBound, cameraMaxBound);
-
-        transform.DOMoveX(targetPosition, 1);
-
-        horizontalLowerBound = horizontalUpperBound;
-        horizontalUpperBound += 2 * halfWidth;
-
-        yield return new WaitForSeconds(.4f);
-        isCameraBoundReached = false;
-        Debug.Log(transform.position.x - cam.aspect * cam.orthographicSize);
-        yield return null;
-    }
-
-    public IEnumerator PanCameraLeftRoutine()
-    {
-        yield return new WaitForSeconds(.4f);
-
-        float targetPosition = transform.position.x - 2 * halfWidth;
-
-        targetPosition = Mathf.Clamp(targetPosition, cameraMinBound, cameraMaxBound);
-
-        transform.DOMoveX(targetPosition, 1);
-
-        horizontalUpperBound = horizontalLowerBound;
-        horizontalLowerBound -= 2 * halfWidth;
-
-
-        yield return new WaitForSeconds(.4f);
-        isCameraBoundReached = false;
-        Debug.Log(transform.position.x - cam.aspect * cam.orthographicSize);
-        yield return null;
-    }
-
-    void OnDrawGizmos()
-    {
-        if (!cam || !cam.orthographic) return;
-
-        float halfWidth = cam.orthographicSize * cam.aspect;
-
-        float rightBound = cam.transform.position.x + halfWidth;
-        float leftBound = cam.transform.position.x - halfWidth;
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(
-            new Vector3(rightBound, -1000f, 0),
-            new Vector3(rightBound, 1000f, 0)
+        float targetX = Mathf.Clamp(
+            transform.position.x + shift,
+            cameraMinBound,
+            cameraMaxBound
         );
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(
-            new Vector3(leftBound, -1000f, 0),
-            new Vector3(leftBound, 1000f, 0)
-        );
+        transform.DOMoveX(targetX, 1f);
+
+        horizontalLowerBound += shift;
+        horizontalUpperBound += shift;
+
+        yield return new WaitForSeconds(.4f);
+
+        isCameraBoundReached = false;
     }
 }
