@@ -16,6 +16,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float cameraMinBound;
     [SerializeField] private float cameraMaxBound;
 
+    bool cameraWithinLevelRange;
+
     private float horizontalUpperBound;
     private float halfWidth;
     public bool isCameraBoundReached { get; private set; }
@@ -32,6 +34,8 @@ public class CameraController : MonoBehaviour
         halfWidth = cam.orthographicSize * cam.aspect;
         horizontalUpperBound = transform.position.x + halfWidth;
 
+        Debug.Log(cam.orthographicSize * cam.aspect);
+
         Debug.Log("lowerBound " + (transform.position.x - halfWidth) + "upper bound " + (transform.position.x + halfWidth));
     }
 
@@ -44,9 +48,8 @@ public class CameraController : MonoBehaviour
     private void CameraPosition()
     {
         float playerPosition = playerPos.transform.position.x;
-        //transform.position = new Vector3(playerPosition.x, transform.position.y, transform.position.z) + offset;
 
-        bool cameraWithinLevelRange = transform.position.x - halfWidth >= cameraMinBound && transform.position.x + halfWidth <= cameraMaxBound;
+        cameraWithinLevelRange = transform.position.x >= cameraMinBound && transform.position.x <= cameraMaxBound;
         if (cameraWithinLevelRange && playerPosition >= horizontalUpperBound && !isCameraBoundReached)
         {
             isCameraBoundReached = true;
@@ -57,14 +60,12 @@ public class CameraController : MonoBehaviour
 
     public void UpdateCameraBounds()
     {
-        StartCoroutine(UpdateCameraBoundsRoutine());
+        StartCoroutine(PanCameraRightRoutine());
     }
 
-    public IEnumerator UpdateCameraBoundsRoutine()
+    public IEnumerator PanCameraRightRoutine()
     {
         yield return new WaitForSeconds(.4f);
-
-        //Debug.Log("Min Camera Bounds: " + minCameraX + "Max Camera Bounds: " + maxCameraX);
 
         float targetPosition = transform.position.x + 2 * halfWidth;
 
